@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | LGU Alubijid File Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="register-container">
+    <div class="left-panel">
+      <img src="static/stockimage.jpg"/>
+    </div>
+
+    <div class="register-right-panel">
+      <div class="register-form-container">
+        <h2>Log in to LGU Alubijid File<br>Management System</h2>
+        <form>
+          <input type="text" placeholder="First Name" required />
+          <input type="text" placeholder="Last Name" required />
+          <input type="email" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <input type="password" placeholder="Confirm Password" required />
+          <small>Use 8 or more characters with a mix of letters, numbers and symbols.</small>
+          <button type="submit" class="create-account-btn">Create account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
