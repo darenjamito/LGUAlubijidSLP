@@ -85,8 +85,15 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        confirm = request.form.get('confirm_password')
+        # password match check
+        if password != confirm:
+            error = 'Passwords do not match.'
+            return render_template('register.html', error=error, username=username, email=email)
+        # uniqueness check
         if User.query.filter((User.username==username)|(User.email==email)).first():
-            return 'User already exists'
+            error = 'Username or email already exists.'
+            return render_template('register.html', error=error, username=username, email=email)
         new_user = User(username=username, email=email, password_hash=generate_password_hash(password, method='pbkdf2:sha256'))
         db.session.add(new_user)
         db.session.commit()
@@ -103,10 +110,24 @@ def logout():
 @login_required
 def account():
     if request.method == 'POST':
+        # handle account deletion
+        if 'delete_account' in request.form:
+            delete_password = request.form.get('delete_password')
+            if not check_password_hash(current_user.password_hash, delete_password):
+                error = 'Incorrect password.'
+                return render_template('account.html', error=error, user=current_user)
+            db.session.delete(current_user)
+            db.session.commit()
+            logout_user()
+            return redirect(url_for('login'))
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm = request.form.get('confirm_password')
+        # ensure new username is unique
+        if User.query.filter(User.username==username, User.user_id!=current_user.user_id).first():
+            error = 'Username already exists.'
+            return render_template('account.html', error=error, user=current_user)
         if password:
             if password != confirm:
                 error = 'Passwords do not match.'

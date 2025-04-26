@@ -69,6 +69,37 @@
     margin-bottom: 10px;
   }
   
+  .delete-btn {
+    width: 100%;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .return-btn {
+    width: 100%;
+    background-color: #BBDEFB;
+    color: #1E88E5;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: 400;
+    transition: background 0.2s;
+  }
+  .return-btn:hover {
+    background-color: #a0d8f7;
+  }
+
+  
   .signup-text {
     font-size: 12px;
     margin-bottom: 15px;
