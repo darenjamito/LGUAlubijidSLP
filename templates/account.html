@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="account-container">
+    <h2>Account Settings</h2>
+    {% if error %}
+      <div class="login-error">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('account') }}">
+      <div>
+        <label>Username</label><br>
+        <input type="text" name="username" value="{{ user.username }}" required>
+      </div>
+      <div>
+        <label>Email</label><br>
+        <input type="email" name="email" value="{{ user.email }}" required>
+      </div>
+      <div>
+        <label>New Password (optional)</label><br>
+        <input type="password" name="password" placeholder="Leave blank to keep current">
+      </div>
+      <div>
+        <label>Confirm Password</label><br>
+        <input type="password" name="confirm_password" placeholder="Confirm new password">
+      </div>
+      <button type="submit" class="signin-btn">Save Changes</button>
+    </form>
+  </div>
+</body>
+</html>
