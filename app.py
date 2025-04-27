@@ -28,8 +28,9 @@ class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
+    first_name = db.Column(db.String(150), nullable=False)
+    last_name = db.Column(db.String(150), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(50), default='viewer')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     def get_id(self):
@@ -51,17 +52,17 @@ class File(db.Model):
     upload_date = db.Column(db.DateTime, server_default=db.func.now())
     storage_path = db.Column(db.String(500), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
-    is_public = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', backref=db.backref('files', lazy=True))
     category = db.relationship('Category', backref=db.backref('files', lazy=True))
 
 with app.app_context():
+    db.drop_all()  # Drop existing tables to update schema
     db.create_all()
 
     # create superuser if none
     if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin', email='admin@example.com', password_hash=generate_password_hash('admin', method='pbkdf2:sha256'), role='admin')
+        admin = User(username='admin', email='admin@example.com', password_hash=generate_password_hash('admin', method='pbkdf2:sha256'), first_name='Admin', last_name='User')
         db.session.add(admin)
         db.session.commit()
 
@@ -82,6 +83,8 @@ def login():
 @app.route("/register", methods=['GET','POST'])
 def register():
     if request.method == 'POST':
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
@@ -89,12 +92,12 @@ def register():
         # password match check
         if password != confirm:
             error = 'Passwords do not match.'
-            return render_template('register.html', error=error, username=username, email=email)
+            return render_template('register.html', error=error, first_name=first_name, last_name=last_name, username=username, email=email)
         # uniqueness check
         if User.query.filter((User.username==username)|(User.email==email)).first():
             error = 'Username or email already exists.'
-            return render_template('register.html', error=error, username=username, email=email)
-        new_user = User(username=username, email=email, password_hash=generate_password_hash(password, method='pbkdf2:sha256'))
+            return render_template('register.html', error=error, first_name=first_name, last_name=last_name, username=username, email=email)
+        new_user = User(username=username, email=email, password_hash=generate_password_hash(password, method='pbkdf2:sha256'), first_name=first_name, last_name=last_name)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
@@ -122,6 +125,8 @@ def account():
             return redirect(url_for('login'))
         username = request.form.get('username')
         email = request.form.get('email')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         password = request.form.get('password')
         confirm = request.form.get('confirm_password')
         # ensure new username is unique
@@ -135,6 +140,8 @@ def account():
             current_user.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
         current_user.username = username
         current_user.email = email
+        current_user.first_name = first_name
+        current_user.last_name = last_name
         db.session.commit()
         return redirect(url_for('upload_file'))
     return render_template('account.html', user=current_user)
