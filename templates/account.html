@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" height="40">
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-home menu-icon"></i>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-search menu-icon"></i>
+                    <span class="menu-text">Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('account') }}" class="active">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span class="menu-text">My Account</span>
+                </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li>
+                <a href="{{ url_for('admin_categories') }}">
+                    <i class="fas fa-tags menu-icon"></i>
+                    <span class="menu-text">Categories</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt menu-icon"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="navbar">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0">My Account</h4>
+            </div>
+            
+            <form id="search-form" class="navbar-search">
+                <input type="text" id="search-input" name="search" placeholder="Search files...">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            
+            <div class="navbar-user">
+                <div class="user-icon">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">My Account</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('account') }}">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="first_name">First Name</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ current_user.first_name }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="last_name">Last Name</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ current_user.last_name }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label for="new_password">New Password</label>
+                                    <input type="password" class="form-control" id="new_password" name="new_password">
+                                    <small class="text-muted">Leave blank to keep current password</small>
+                                </div>
+                                
+                                <div class="form-group mt-3">
+                                    <label for="confirm_password">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Account Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>User ID:</strong> {{ current_user.id }}</p>
+                            <p><strong>Username:</strong> {{ current_user.username }}</p>
+                            <p><strong>Email:</strong> {{ current_user.email }}</p>
+                            <p><strong>Full Name:</strong> {{ current_user.full_name }}</p>
+                            <p><strong>Role:</strong> {{ current_user.role|capitalize }}</p>
+                            <p><strong>Account Created:</strong> {{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+                            
+                            <div class="mt-4">
+                                <h6>Statistics</h6>
+                                <p><strong>Total Files:</strong> {{ current_user.files|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="card-title mb-0">Danger Zone</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-danger">Warning: This action is permanent and cannot be undone.</p>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action is permanent and cannot be undone. All your files will be deleted.</p>
+                <form id="delete-account-form" method="POST" action="{{ url_for('account') }}">
+                    <input type="hidden" name="delete_account" value="1">
+                    <div class="form-group">
+                        <label for="delete_password">Enter your password to confirm:</label>
+                        <input type="password" class="form-control" id="delete_password" name="delete_password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="delete-account-form" class="btn btn-danger">Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

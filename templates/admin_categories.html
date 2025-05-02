@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Categories - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" height="40">
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-home menu-icon"></i>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-search menu-icon"></i>
+                    <span class="menu-text">Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('account') }}">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span class="menu-text">My Account</span>
+                </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li>
+                <a href="{{ url_for('admin_categories') }}" class="active">
+                    <i class="fas fa-tags menu-icon"></i>
+                    <span class="menu-text">Categories</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt menu-icon"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="navbar">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0">Category Management</h4>
+            </div>
+            
+            <form id="search-form" class="navbar-search">
+                <input type="text" id="search-input" name="search" placeholder="Search categories...">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            
+            <div class="navbar-user">
+                <div class="user-icon">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Categories</h5>
+                    <button id="add-category-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Category
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Created At</th>
+                                    <th>Files Count</th>
+                                    <th width="100">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if categories %}
+                                    {% for category in categories %}
+                                    <tr>
+                                        <td>
+                                            <span class="category-badge category-{{ category.name|lower|replace(' ', '-') }}">
+                                                {{ category.name }}
+                                            </span>
+                                        </td>
+                                        <td>{{ category.description or 'No description' }}</td>
+                                        <td>{{ category.created_at.strftime('%m/%d/%Y') }}</td>
+                                        <td>{{ category.files|length }}</td>
+                                        <td>
+                                            <button class="action-btn edit-btn edit-category-btn" 
+                                                    data-id="{{ category.id }}" 
+                                                    data-name="{{ category.name }}" 
+                                                    data-description="{{ category.description }}"
+                                                    title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="action-btn delete-btn delete-category-btn" 
+                                                    data-id="{{ category.id }}" 
+                                                    data-name="{{ category.name }}"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No categories found</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal" id="category-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Add Category</h5>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="category-form" method="POST" action="{{ url_for('admin_categories') }}">
+                <input type="hidden" name="action" value="add">
+                <input type="hidden" name="category_id" value="">
+                
+                <div class="form-group">
+                    <label for="name">Category Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                </div>
+                
+                <div class="text-right mt-4">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

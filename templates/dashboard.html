@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" height="40">
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}" class="active">
+                    <i class="fas fa-home menu-icon"></i>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('search_page') }}">
+                    <i class="fas fa-search menu-icon"></i>
+                    <span class="menu-text">Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('account') }}">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span class="menu-text">My Account</span>
+                </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li>
+                <a href="{{ url_for('admin_categories') }}">
+                    <i class="fas fa-tags menu-icon"></i>
+                    <span class="menu-text">Categories</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt menu-icon"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="navbar">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0">Dashboard</h4>
+            </div>
+            
+            <form id="search-form" class="navbar-search" action="{{ url_for('dashboard') }}" method="GET">
+                <input type="text" id="search-input" name="search" placeholder="Search files..." value="{{ current_search }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            
+            <div class="navbar-user">
+                <div class="user-icon">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Upload File</h5>
+                </div>
+                <div class="card-body">
+                    <form id="upload-form" action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+                        <div class="upload-area" id="upload-area">
+                            <p>Drag and drop file here or</p>
+                            <button type="button" class="upload-btn">Choose file</button>
+                            <input type="file" id="file-input" name="file" style="display: none;">
+                            <p class="file-name text-muted mt-3">No file selected</p>
+                        </div>
+                        
+                        <div class="upload-form-fields d-none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="title">Title</label>
+                                        <input type="text" class="form-control" id="title" name="title" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="category_id">Category</label>
+                                        <select class="form-control" id="category_id" name="category_id">
+                                            <option value="">-- Select Category --</option>
+                                            {% for category in categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                            <div class="text-right mt-3">
+                                <button type="submit" class="btn btn-primary">Upload File</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">My Files</h5>
+                    <div class="filter-controls">
+                        <form id="filter-form" action="{{ url_for('dashboard') }}" method="GET">
+                            <div class="filter-group">
+                                <label for="category-filter">Category:</label>
+                                <select id="category-filter" class="form-control" name="category" onchange="this.form.submit()">
+                                    <option value="all">All Categories</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if current_category == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="date-filter">Date:</label>
+                                <select id="date-filter" class="form-control" name="date" onchange="this.form.submit()">
+                                    <option value="" {% if not current_date %}selected{% endif %}>All Time</option>
+                                    <option value="today" {% if current_date == 'today' %}selected{% endif %}>Today</option>
+                                    <option value="this_week" {% if current_date == 'this_week' %}selected{% endif %}>This Week</option>
+                                    <option value="this_month" {% if current_date == 'this_month' %}selected{% endif %}>This Month</option>
+                                    <option value="this_year" {% if current_date == 'this_year' %}selected{% endif %}>This Year</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="sort-by">Sort By:</label>
+                                <select id="sort-by" class="form-control" name="sort" onchange="this.form.submit()">
+                                    <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Date (Newest First)</option>
+                                    <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Date (Oldest First)</option>
+                                    <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                                    <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                                    <option value="size_asc" {% if current_sort == 'size_asc' %}selected{% endif %}>Size (Smallest First)</option>
+                                    <option value="size_desc" {% if current_sort == 'size_desc' %}selected{% endif %}>Size (Largest First)</option>
+                                </select>
+                            </div>
+                            <input type="hidden" name="search" value="{{ current_search }}">
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="30"><input type="checkbox" id="select-all"></th>
+                                    <th>Name</th>
+                                    <th>File Type</th>
+                                    <th>Size</th>
+                                    <th>Category</th>
+                                    <th>Uploaded By</th>
+                                    <th>Date Uploaded</th>
+                                    <th width="100">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if files %}
+                                    {% for file in files %}
+                                    <tr>
+                                        <td><input type="checkbox" class="file-select" data-id="{{ file.id }}"></td>
+                                        <td>{{ file.filename }}</td>
+                                        <td>{{ file.file_type|upper }}</td>
+                                        <td>{{ file.file_size_formatted }}</td>
+                                        <td>
+                                            {% if file.category %}
+                                            <span class="category-badge category-{{ file.category.name|lower|replace(' ', '-') }}">
+                                                {{ file.category.name }}
+                                            </span>
+                                            {% else %}
+                                            <span class="category-badge category-other">Uncategorized</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ file.user.username }}</td>
+                                        <td>{{ file.upload_date.strftime('%m/%d/%Y') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('download_file', file_id=file.id) }}" class="action-btn download-btn" title="Download">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                            <a href="{{ url_for('edit_file', file_id=file.id) }}" class="action-btn edit-btn" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="action-btn delete-btn" data-id="{{ file.id }}" data-name="{{ file.filename }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">No files found</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if pagination.pages > 1 %}
+                    <nav aria-label="File navigation">
+                        <ul class="pagination">
+                            {% if pagination.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('dashboard', page=pagination.prev_num, search=current_search, category=current_category, date=current_date, sort=current_sort) }}">Previous</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != pagination.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('dashboard', page=page_num, search=current_search, category=current_category, date=current_date, sort=current_sort) }}">{{ page_num }}</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="#">{{ page_num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#">...</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('dashboard', page=pagination.next_num, search=current_search, category=current_category, date=current_date, sort=current_sort) }}">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

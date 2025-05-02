@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Register - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-bg" style="background-image: url('https://images.unsplash.com/photo-1542281286-9e0a16bb7366?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');"></div>
+    <div class="auth-form-container">
+        <div class="auth-form">
+            <h2>Create an Account</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div id="password-strength" class="mt-2"></div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <div class="form-group mt-3">
+                    <small class="text-muted">
+                        Password Recommendation: Use 8 or more characters with a mix of letters, numbers and symbols.
+                    </small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-4">Create account</button>
+            </form>
+            
+            <div class="auth-links">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here.</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

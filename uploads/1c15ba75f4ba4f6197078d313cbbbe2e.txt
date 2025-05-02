@@ -1,0 +1,16 @@
+-a 100
+mov cx,0000      ; 0100 - initialize counter
+mov ah,08        ; 0103 - read char without echo
+int 21           ; 0105
+cmp al,30        ; 0107 - check if less than '0'
+jb 0103          ; 0109 - jump back if not digit
+cmp al,39        ; 010B - check if greater than '9'
+ja 0103          ; 010D - jump back if not digit
+inc cx           ; 010F - increment count
+mov dl,2A        ; 0111 - ASCII for '*'
+mov ah,02        ; 0113 - display '*'
+int 21           ; 0115
+cmp cx,0005      ; 0117 - are 5 digits entered?
+jne 0103         ; 011A - if not, loop
+mov ah,4c        ; 011C - exit
+int 21           ; 011E

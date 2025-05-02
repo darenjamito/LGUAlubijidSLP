@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <style>
+    .text { font-family: Arial, sans-serif; font-weight: bold; }
+    .primary { fill: #fff; }
+    .secondary { fill: #f0f8ff; font-size: 12px; }
+  </style>
+  <g>
+    <text x="10" y="30" class="text primary" font-size="22">LGU Alubijid</text>
+    <text x="10" y="45" class="text secondary">File Management System</text>
+  </g>
+  <g transform="translate(160, 30)">
+    <path d="M0 0 L15 0 L15 15 L0 15 Z" fill="none" stroke="#fff" stroke-width="2"/>
+    <path d="M3 7.5 L7 12 L12 3" stroke="#fff" stroke-width="2" fill="none"/>
+  </g>
+</svg>

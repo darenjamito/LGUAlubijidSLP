@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Edit File - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <img src="{{ url_for('static', filename='assets/logo.svg') }}" alt="Logo" height="40">
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-home menu-icon"></i>
+                    <span class="menu-text">Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-search menu-icon"></i>
+                    <span class="menu-text">Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('account') }}">
+                    <i class="fas fa-user menu-icon"></i>
+                    <span class="menu-text">My Account</span>
+                </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li>
+                <a href="{{ url_for('admin_categories') }}">
+                    <i class="fas fa-tags menu-icon"></i>
+                    <span class="menu-text">Categories</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt menu-icon"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="navbar">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0">Edit File</h4>
+            </div>
+            
+            <form id="search-form" class="navbar-search">
+                <input type="text" id="search-input" name="search" placeholder="Search files...">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            
+            <div class="navbar-user">
+                <div class="user-icon">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Edit File Details</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('edit_file', file_id=file.id) }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="title">Title</label>
+                                    <input type="text" class="form-control" id="title" name="title" value="{{ file.filename }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="category_id">Category</label>
+                                    <select class="form-control" id="category_id" name="category_id">
+                                        <option value="">-- Select Category --</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if file.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ file.description }}</textarea>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6>File Information</h6>
+                            <p><strong>Original Filename:</strong> {{ file.original_filename }}</p>
+                            <p><strong>File Type:</strong> {{ file.file_type|upper }}</p>
+                            <p><strong>File Size:</strong> {{ file.file_size_formatted }}</p>
+                            <p><strong>Upload Date:</strong> {{ file.upload_date.strftime('%B %d, %Y %I:%M %p') }}</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

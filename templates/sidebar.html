@@ -1,0 +1,68 @@
+<!-- Sidebar HTML structure -->
+<div class="sidebar">
+    <!-- Search Form -->
+    <form action="{{ url_for('search') }}" method="GET" class="search-form">
+        <input type="text" name="search_query" placeholder="Search..." class="search-input" required>
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <!-- You can also add additional sidebar content here, like navigation links -->
+    <ul class="sidebar-nav">
+        <li><a href="{{ url_for('home') }}">Home</a></li>
+        <li><a href="{{ url_for('about') }}">About</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        <!-- Add more links as needed -->
+    </ul>
+</div>
+
+<!-- You can add some CSS styling for the sidebar here or in an external stylesheet -->
+<style>
+    .sidebar {
+        width: 250px;
+        background-color: #f4f4f4;
+        padding: 20px;
+        position: fixed;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .search-form {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        padding: 8px;
+        font-size: 16px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .search-button {
+        padding: 8px 16px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .search-button:hover {
+        background-color: #0056b3;
+    }
+    .sidebar-nav {
+        list-style-type: none;
+        padding: 0;
+    }
+    .sidebar-nav li {
+        margin: 10px 0;
+    }
+    .sidebar-nav a {
+        text-decoration: none;
+        color: #333;
+        font-size: 18px;
+    }
+    .sidebar-nav a:hover {
+        color: #007bff;
+    }
+</style>

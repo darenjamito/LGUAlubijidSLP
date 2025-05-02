@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Search Files - LGU Alubijid File Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="sidebar" id="sidebar">
+        {% include 'sidebar.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="navbar">
+            <div class="d-flex align-items-center">
+                <h4 class="mb-0">Search Files</h4>
+            </div>
+
+            <form id="search-form" class="navbar-search" action="{{ url_for('search_page') }}" method="GET">
+                <input type="text" id="search-input" name="search" placeholder="Search files..." value="{{ current_search }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <div class="navbar-user">
+                <div class="user-icon">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('search_page') }}" method="GET" class="row">
+                        <div class="col-md-4">
+                            <label for="category">Category</label>
+                            <select id="category" name="category" class="form-control">
+                                <option value="all">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if current_category == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="date">Date Uploaded</label>
+                            <select id="date" name="date" class="form-control">
+                                <option value="" {% if not current_date %}selected{% endif %}>All Time</option>
+                                <option value="today" {% if current_date == 'today' %}selected{% endif %}>Today</option>
+                                <option value="this_week" {% if current_date == 'this_week' %}selected{% endif %}>This Week</option>
+                                <option value="this_month" {% if current_date == 'this_month' %}selected{% endif %}>This Month</option>
+                                <option value="this_year" {% if current_date == 'this_year' %}selected{% endif %}>This Year</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="sort">Sort By</label>
+                            <select id="sort" name="sort" class="form-control">
+                                <option value="date_desc" {% if current_sort == 'date_desc' %}selected{% endif %}>Newest</option>
+                                <option value="date_asc" {% if current_sort == 'date_asc' %}selected{% endif %}>Oldest</option>
+                                <option value="name_asc" {% if current_sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                                <option value="name_desc" {% if current_sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                                <option value="size_asc" {% if current_sort == 'size_asc' %}selected{% endif %}>Size (Smallest First)</option>
+                                <option value="size_desc" {% if current_sort == 'size_desc' %}selected{% endif %}>Size (Largest First)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-right mt-3">
+                            <input type="text" name="search" value="{{ current_search }}" hidden>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title">Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>File Type</th>
+                                    <th>Size</th>
+                                    <th>Category</th>
+                                    <th>Uploaded By</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if files %}
+                                    {% for file in files %}
+                                    <tr>
+                                        <td>{{ file.filename }}</td>
+                                        <td>{{ file.file_type|upper }}</td>
+                                        <td>{{ file.file_size_formatted }}</td>
+                                        <td>{{ file.category.name if file.category else 'Uncategorized' }}</td>
+                                        <td>{{ file.user.username }}</td>
+                                        <td>{{ file.upload_date.strftime('%m/%d/%Y') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-sm btn-success">Download</a>
+                                            <a href="{{ url_for('edit_file', file_id=file.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No matching files found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
